@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054837261120",
+    "project_id": "lcsjobs",
+    "storage_bucket": "lcsjobs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054837261120:android:c199446d69a51dc0ea30a5",
+        "android_client_info": {
+          "package_name": "com.lcs.jobs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3AUBkcrqnNQliIehkWX9MjA_WRnnOQRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

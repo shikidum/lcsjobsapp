@@ -1,0 +1,83 @@
+name: lcsjobs
+description: A new Flutter project.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.7+7
+
+environment:
+  sdk: '>=3.0.5 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  get:
+
+  # UI & Utilities
+  sizer: ^2.0.15
+  intl:
+  shared_preferences: ^2.0.15
+  flutter_svg: ^2.0.4
+  dots_indicator: ^2.1.0
+  pinput: ^2.2.31
+#  nb_utils: ^4.6.25
+  nb_utils: ^7.1.8
+  table_calendar: ^3.0.9
+  intl_phone_field: ^3.1.0
+  get_storage: ^2.1.1
+  http: ^1.5.0
+#  http: ^0.13.6
+  # STATE MANAGEMENT
+  mobx: ^2.2.1
+  flutter_mobx: ^2.1.1
+  firebase_storage: ^11.2.6
+  file_picker: ^9.0.0
+  path: ^1.8.3
+  image_picker: ^1.1.2
+  share_plus: ^12.0.1
+  path_provider: ^2.1.5
+  cross_file: any
+
+  # Firebase Core & Authentication
+  firebase_core: any
+  firebase_auth: any
+  cloud_firestore: any
+  firebase_database: any
+  firebase_messaging: any
+
+  flutter_launcher_icons: 0.13.1
+  razorpay_flutter: ^1.4.0
+  flutter_web_browser: ^0.17.3
+  store_redirect: ^2.0.4
+  open_filex: ^4.4.0             # For opening PDF
+#  url_launcher: ^6.3.2
+#  url_launcher: ^6.2.4
+#  external_app_launcher: ^4.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/job_assets/job_pngimage/
+    - assets/job_assets/job_svgimage/
+
+  fonts:
+    - family: UrbanistBold
+      fonts:
+        - asset: assets/job_assets/job_fonts/Urbanist-Bold.ttf
+    - family: UrbanistLight
+      fonts:
+        - asset: assets/job_assets/job_fonts/Urbanist-Light.ttf
+    - family: UrbanistMedium
+      fonts:
+        - asset: assets/job_assets/job_fonts/Urbanist-Medium.ttf
+    - family: UrbanistRegular
+      fonts:
+        - asset: assets/job_assets/job_fonts/Urbanist-Regular.ttf
+    - family: UrbanistSemiBold
+      fonts:
+        - asset: assets/job_assets/job_fonts/Urbanist-SemiBold.ttf
