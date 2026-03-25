@@ -48,10 +48,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCj6GyhYwhdl4DctMQRnDZLMYBbS3mCC4Y',
-    appId: '1:1054837261120:ios:7a36fe0de08d0865ea30a5',
+    appId: '1:1054837261120:ios:f9b8667a3ad36812ea30a5',
     messagingSenderId: '1054837261120',
     projectId: 'lcsjobs',
     storageBucket: 'lcsjobs.firebasestorage.app',
-    iosBundleId: 'com.example.jobSeeker',
+    iosBundleId: 'com.lcs.jobs',
   );
 }
