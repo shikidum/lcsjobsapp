@@ -1,6 +1,6 @@
 # Uncomment this line to define a global platform for your project
 # platform :ios, '11.0'
-  platform :ios, '13.0'
+platform :ios, '13.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
@@ -45,13 +45,16 @@ post_install do |installer|
       # Fix deployment target
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
 
-      # 🚀 REMOVE invalid flags like -G
-      if config.build_settings['OTHER_CFLAGS']
-        config.build_settings['OTHER_CFLAGS'] = config.build_settings['OTHER_CFLAGS'].reject { |flag| flag == '-G' }
-      end
+      # Remove invalid -G flag — handles both String and Array values
+      %w[OTHER_CFLAGS OTHER_CPLUSPLUSFLAGS OTHER_CXXFLAGS].each do |key|
+        val = config.build_settings[key]
+        next if val.nil?
 
-      if config.build_settings['OTHER_CPLUSPLUSFLAGS']
-        config.build_settings['OTHER_CPLUSPLUSFLAGS'] = config.build_settings['OTHER_CPLUSPLUSFLAGS'].reject { |flag| flag == '-G' }
+        if val.is_a?(Array)
+          config.build_settings[key] = val.reject { |f| f.strip == '-G' }
+        elsif val.is_a?(String)
+          config.build_settings[key] = val.split.reject { |f| f.strip == '-G' }.join(' ')
+        end
       end
     end
   end
