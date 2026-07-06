@@ -40,33 +40,18 @@ post_install do |installer|
 
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+    end
 
-      # Fix for BoringSSL-GRPC / gRPC unsupported '-G' flag on Xcode 16+
-        if target.name == 'BoringSSL-GRPC'
-          config.build_settings['OTHER_CFLAGS'] = config.build_settings['OTHER_CFLAGS']&.reject { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' } || []
-        end
-
-      # Strip -G from ALL flag keys including Razorpay's injected flags
-      %w[
-        OTHER_CFLAGS
-        OTHER_CPLUSPLUSFLAGS
-        OTHER_CXXFLAGS
-        OTHER_SWIFT_FLAGS
-        WARNING_CFLAGS
-      ].each do |key|
-        val = config.build_settings[key]
-        next if val.nil?
-        if val.is_a?(Array)
-          config.build_settings[key] = val.reject { |f| f.strip == '-G' || f.strip == '-G0' }
-        elsif val.is_a?(String)
-          config.build_settings[key] = val.split.reject { |f| f.strip == '-G' || f.strip == '-G0' }.join(' ')
+    # Real fix: strip the bad flag from per-file COMPILER_FLAGS
+    if target.name == 'BoringSSL-GRPC'
+      target.source_build_phase.files.each do |file|
+        if file.settings && file.settings['COMPILER_FLAGS']
+          flags = file.settings['COMPILER_FLAGS'].split
+          flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+          file.settings['COMPILER_FLAGS'] = flags.join(' ')
         end
       end
-
-      # Razorpay specific: disable debug info compression which triggers -G
-      config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf'
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-      config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
     end
   end
 end
