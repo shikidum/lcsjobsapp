@@ -25,16 +25,31 @@ class _JobEditprofileState extends State<JobEditprofile> {
   double width = 0.00;
   final themedata = Get.put(JobThemecontroler());
   final controller = Get.put(JobHomeController());
-  final storage = GetStorage(); // 🔐 local storage
+  final storage = GetStorage();
+
+  late String preferredCity;
+  late String preferredLocality;
+
+  @override
+  void initState() {
+    super.initState();
+    final storedCity = storage.read("preferred_city");
+    preferredCity = (storedCity ?? "").toString().trim().toLowerCase();
+
+    final storedLocality = storage.read("preferred_locality");
+    preferredLocality = (storedLocality ?? "").toString().trim().toLowerCase();
+
+    if (preferredCity.isNotEmpty) {
+      controller.selectedCity.value = preferredCity;
+      controller.fetchLocalities(preferredCity);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     height = size.height;
     width = size.width;
-    final storedCity = storage.read("preferred_city");
-    final preferredCity = (storedCity ?? "").toString().trim().toLowerCase();
-    final storedLocality = storage.read("preferred_locality");
-    final preferredLocality = (storedLocality ?? "").toString().trim().toLowerCase();
     return Scaffold(
       appBar: AppBar(
         title: Text("Profile".tr,style: urbanistBold.copyWith(fontSize: 22 )),
@@ -161,21 +176,21 @@ class _JobEditprofileState extends State<JobEditprofile> {
               Text("Prefered Location", style: urbanistMedium.copyWith(fontSize: 16)),
               Text("City", style: urbanistMedium.copyWith(fontSize: 16)),
               Obx(() => DropdownButtonFormField<String>(
-                value: controller.cities.any((c) => c['slug'] == preferredCity)
-                    ? preferredCity
-                    : null,
+                value: controller.selectedCity.value.isNotEmpty &&
+                    controller.cities.any((c) => c['slug'] == controller.selectedCity.value)
+                    ? controller.selectedCity.value
+                    : (controller.cities.any((c) => c['slug'] == preferredCity) ? preferredCity : null),
                 items: controller.cities.map((city) {
                   return DropdownMenuItem<String>(
-                    value: city['slug'],      // 🔥 slug stored
-                    child: Text(city['name']!), // 🔥 name shown
+                    value: city['slug'],
+                    child: Text(city['name']!),
                   );
                 }).toList(),
                 onChanged: (value) {
                   controller.selectedCity.value = value!;
-                  controller.fetchLocalities(value); // value = slug
+                  controller.fetchLocalities(value);
                 },
-                decoration: Formuiwidget.inputDecoration(
-                    "Select City", themedata),
+                decoration: Formuiwidget.inputDecoration("Select City", themedata),
               )),
               SizedBox(height: height / 36),
               Text("Locality", style: urbanistMedium.copyWith(fontSize: 16)),
@@ -200,8 +215,11 @@ class _JobEditprofileState extends State<JobEditprofile> {
           highlightColor: JobColor.transparent,
           onTap: controller.isProfileUpdating.value
               ? null
-              : () {
-            controller.updateBasicProfile();
+              : () async {
+            final success = await controller.updateBasicProfile();
+            if (success && mounted) {
+              Navigator.of(context).pop();
+            }
           },
           child: Container(
             height: height / 15,

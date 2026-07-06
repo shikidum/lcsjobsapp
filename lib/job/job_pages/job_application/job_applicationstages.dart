@@ -302,36 +302,6 @@ class _JobApplicationStagesState extends State<JobApplicationStages> {
           ),
         ),
       ),
-      // bottomNavigationBar: Padding(
-      //   padding: EdgeInsets.symmetric(
-      //     horizontal: width / 36,
-      //     vertical: height / 56,
-      //   ),
-      //   child: InkWell(
-      //     splashColor: JobColor.transparent,
-      //     highlightColor: JobColor.transparent,
-      //     onTap: () {
-      //       // You can add actions later based on status
-      //     },
-      //     child: Container(
-      //       height: height / 15,
-      //       width: width / 1,
-      //       decoration: BoxDecoration(
-      //         borderRadius: BorderRadius.circular(50),
-      //         color: JobColor.lightblue,
-      //       ),
-      //       child: Center(
-      //         child: Text(
-      //           _statusLabel(status),
-      //           style: urbanistSemiBold.copyWith(
-      //             fontSize: 16,
-      //             color: JobColor.appcolor,
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
     );
   }
 

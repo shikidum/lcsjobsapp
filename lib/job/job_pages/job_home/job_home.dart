@@ -51,8 +51,8 @@ class _JobHomeState extends State<JobHome> {
   size = MediaQuery.of(context).size;
   height = size.height;
   width = size.width;
-  final storedLocality = homecontroller.storage.read("preferred_locality");
-  final Categ = homecontroller.storage.read("desired_category");
+  // final storedLocality = homecontroller.storage.read("preferred_locality");
+  // final Categ = homecontroller.storage.read("desired_category");
     return Scaffold(
       appBar: AppBar(
         leadingWidth: width/1,
@@ -143,13 +143,17 @@ class _JobHomeState extends State<JobHome> {
                           return const JobEditprofile();
                         },));
                       },
-                      child: Container(child:
-                      Row(
-                        children: [
-                          Icon(Icons.pin_drop_outlined, color: themedata.isdark?JobColor.white:JobColor.black, size: 20),
-                          Text(storedLocality,style: urbanistRegular.copyWith(fontSize: 16)),
-                        ],
-                      )),
+                      child: Container(
+                        child: Row(
+                          children: [
+                            Icon(Icons.pin_drop_outlined, color: themedata.isdark ? JobColor.white : JobColor.black, size: 20),
+                            Obx(() => Text(
+                              homecontroller.displayPreferredLocality.value,
+                              style: urbanistRegular.copyWith(fontSize: 16),
+                            )),
+                          ],
+                        ),
+                      ),
                     ),
                     InkWell(
                       splashColor: JobColor.transparent,
@@ -159,12 +163,17 @@ class _JobHomeState extends State<JobHome> {
                           return const JobEditJobCategry();
                         },));
                       },
-                      child: Container(child: Row(
-                        children: [
-                          Icon(Icons.account_box_outlined, color: themedata.isdark?JobColor.white:JobColor.black, size: 20),
-                          Text(Categ,style: urbanistRegular.copyWith(fontSize: 16)),
-                        ],
-                      )),
+                      child: Container(
+                        child: Row(
+                          children: [
+                            Icon(Icons.account_box_outlined, color: themedata.isdark ? JobColor.white : JobColor.black, size: 20),
+                            Obx(() => Text(
+                              homecontroller.displayDesiredCategory.value,
+                              style: urbanistRegular.copyWith(fontSize: 16),
+                            )),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),

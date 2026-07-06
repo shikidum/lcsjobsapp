@@ -102,8 +102,11 @@ class _JobEditJobCategryState extends State<JobEditJobCategry> {
           highlightColor: JobColor.transparent,
           onTap: controller.isProfileUpdating.value
               ? null
-              : () {
-            controller.updateJobCategory();
+              : () async {
+            final success = await controller.updateJobCategory();
+            if (success && mounted) {
+              Navigator.of(context).pop();
+            }
           },
           child: Container(
             height: height / 15,

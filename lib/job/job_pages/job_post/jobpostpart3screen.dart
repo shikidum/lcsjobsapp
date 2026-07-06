@@ -169,7 +169,7 @@ class JobPostPart3Screen extends StatelessWidget {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Enter the 6-digit OTP sent to your number"),
+                Text("Enter the last 6 digits of your phone number as OTP\n\nYour OTP is: ${controller.PhoneNoController.text.trim().substring(controller.PhoneNoController.text.trim().length - 6)}"),
                 SizedBox(height: 10),
                 TextField(
                   keyboardType: TextInputType.number,
@@ -227,58 +227,6 @@ class JobPostPart3Screen extends StatelessWidget {
     ),
     ),
     ),
-    //   InkWell(
-    //     onTap: controller.isSubmitting.value
-    //         ? null
-    //         : () async {
-    //       controller.isSubmitting.value = true;
-    //       // Send OTP first
-    //       await controller.sendOtpToPhone(controller.PhoneNoController.text.trim());
-    //       // Show OTP Dialog
-    //       Get.dialog(
-    //         AlertDialog(
-    //           title: Text("OTP Verification"),
-    //           content: Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             children: [
-    //               Text("Enter the 6-digit OTP sent to your number"),
-    //               SizedBox(height: 10),
-    //               TextField(
-    //                 keyboardType: TextInputType.number,
-    //                 maxLength: 6,
-    //                 onChanged: (val) => controller.enteredOtp.value = val,
-    //                 decoration: InputDecoration(hintText: "Enter OTP"),
-    //               ),
-    //             ],
-    //           ),
-    //           actions: [
-    //             TextButton(
-    //               child: Text("Verify"),
-    //               onPressed: () async {
-    //                 bool isValid = await controller.verifyOtp(controller.enteredOtp.value);
-    //                 if (isValid) {
-    //                   Get.back(); // Close dialog
-    //                   await controller.submitJobPost();
-    //                 } else {
-    //                   Get.snackbar("Invalid OTP", "Please try again");
-    //                 }
-    //                 controller.isSubmitting.value = false;
-    //               },
-    //             ),
-    //             TextButton(
-    //               child: Text("Cancel"),
-    //               onPressed: () {
-    //                 Get.back();
-    //                 controller.isSubmitting.value = false;
-    //               },
-    //             ),
-    //           ],
-    //         ),
-    //       );
-    //     },
-    //     // ...
-    //   ),
-
     ],
     );
            })

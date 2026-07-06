@@ -4,7 +4,7 @@ import 'package:lcsjobs/job/job_gloabelclass/job_color.dart';
 import 'package:lcsjobs/job/job_gloabelclass/job_icons.dart';
 import '../../../job_gloabelclass/job_fontstyle.dart';
 import '../../job_theme/job_themecontroller.dart';
-import 'job_selectexpertise.dart';
+
 
 class JobChoosejobtype extends StatefulWidget {
   const JobChoosejobtype({Key? key}) : super(key: key);
@@ -106,9 +106,9 @@ class _JobChoosejobtypeState extends State<JobChoosejobtype> {
           splashColor:JobColor.transparent,
           highlightColor:JobColor.transparent,
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return const JobSelectexpertise();
-            },));
+            // Navigator.push(context, MaterialPageRoute(builder: (context) {
+            //   return const JobSelectexpertise();
+            // },));
           },
           child: Container(
             height: height/15,

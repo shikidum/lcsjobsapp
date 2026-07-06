@@ -161,6 +161,15 @@ class JobHomeController extends GetxController {
   var subscription_status=''.obs;
   var applied_jobs = <String>[].obs;
 
+  // ══════════════════════════════════════════════════════════════════════════════
+// CHANGE 1 — Add these two reactive vars to the class field declarations
+//            (near the other RxString fields, e.g. next to selectedCategoryName)
+// ══════════════════════════════════════════════════════════════════════════════
+
+  // Reactive vars used by JobHome top-bar display (inside Obx so they update live)
+  final RxString displayDesiredCategory = ''.obs;
+  final RxString displayPreferredLocality = ''.obs;
+
   void resetForm() {
     // Optional: clear all fields if needed
   }
@@ -330,46 +339,108 @@ class JobHomeController extends GetxController {
       print("Error loading applications: $e");
     }
   }
+  // void loadSavedValues() {
+  //   try {
+  //   final candidateId = storage.read('candidate_id');
+  //   if (candidateId == null) return;
+  //
+  //   final expiryStr = storage.read('plan_end_date');
+  //   if (expiryStr != null && expiryStr.isNotEmpty) {
+  //     subscriptionEndDate.value = DateTime.tryParse(expiryStr);
+  //   }
+  //   _checkSubscriptionValidity();
+  //
+  //   storage.write("subscription_status", isSubscriptionValid.value ? 'active' : 'inactive');
+  //   subscription_status.value = storage.read("subscription_status") ?? 'inactive';
+  //
+  //   // Trigger dependent dropdown fetches
+  //   if (selectedCategoryName.value.isNotEmpty) fetchRoles(selectedCategorySlug.value);
+  //   if (selectedCity.value.isNotEmpty) fetchLocalities(selectedCity.value);
+  //
+  //   var ddata = storage.read('applied_jobs') ?? '';
+  //   if (ddata is List) {
+  //     applied_jobs.value = ddata.whereType<String>().toList();
+  //   } else if (ddata is Map) {
+  //     applied_jobs.value = ddata.values.map((e) => e.toString()).toList();
+  //   } else {
+  //     applied_jobs.clear();
+  //   }
+  //
+  //   // Dropdowns
+  //   UserName.value = GetStorage().read('profile_name') ?? '';
+  //   UserPhone.value = GetStorage().read('phone') ?? '';
+  //   UserProfile.value = GetStorage().read('profile_pic_url') ?? '';
+  //   selectedCategoryName.value = storage.read('job_category') ?? '';
+  //   selectedCategorySlug.value = storage.read('job_category_slug') ?? '';
+  //   selectedRole.value = storage.read('job_role') ?? '';
+  //   selectedCity.value = storage.read('job_city') ?? '';
+  //   selectedLocality.value = storage.read('job_locality') ?? '';
+  //   } catch (e) {
+  //     debugPrint('⚠️ Error loading local data: $e');
+  //   }
+  // }
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CHANGE 3 — Replace loadSavedValues() to also populate the reactive display vars
+// ══════════════════════════════════════════════════════════════════════════════
+
   void loadSavedValues() {
     try {
-    final candidateId = storage.read('candidate_id');
-    if (candidateId == null) return;
+      final candidateId = storage.read('candidate_id');
+      if (candidateId == null) return;
 
-    final expiryStr = storage.read('plan_end_date');
-    if (expiryStr != null && expiryStr.isNotEmpty) {
-      subscriptionEndDate.value = DateTime.tryParse(expiryStr);
-    }
-    _checkSubscriptionValidity();
+      final expiryStr = storage.read('plan_end_date');
+      if (expiryStr != null && expiryStr.isNotEmpty) {
+        subscriptionEndDate.value = DateTime.tryParse(expiryStr);
+      }
+      _checkSubscriptionValidity();
 
-    storage.write("subscription_status", isSubscriptionValid.value ? 'active' : 'inactive');
-    subscription_status.value = storage.read("subscription_status") ?? 'inactive';
+      storage.write("subscription_status",
+          isSubscriptionValid.value ? 'active' : 'inactive');
+      subscription_status.value =
+          storage.read("subscription_status") ?? 'inactive';
 
-    // Trigger dependent dropdown fetches
-    if (selectedCategoryName.value.isNotEmpty) fetchRoles(selectedCategorySlug.value);
-    if (selectedCity.value.isNotEmpty) fetchLocalities(selectedCity.value);
+      // Trigger dependent dropdown fetches
+      if (selectedCategoryName.value.isNotEmpty) {
+        fetchRoles(selectedCategorySlug.value);
+      }
+      if (selectedCity.value.isNotEmpty) {
+        fetchLocalities(selectedCity.value);
+      }
 
-    var ddata = storage.read('applied_jobs') ?? '';
-    if (ddata is List) {
-      applied_jobs.value = ddata.whereType<String>().toList();
-    } else if (ddata is Map) {
-      applied_jobs.value = ddata.values.map((e) => e.toString()).toList();
-    } else {
-      applied_jobs.clear();
-    }
+      var ddata = storage.read('applied_jobs') ?? '';
+      if (ddata is List) {
+        applied_jobs.value = ddata.whereType<String>().toList();
+      } else if (ddata is Map) {
+        applied_jobs.value =
+            ddata.values.map((e) => e.toString()).toList();
+      } else {
+        applied_jobs.clear();
+      }
 
-    // Dropdowns
-    UserName.value = GetStorage().read('profile_name') ?? '';
-    UserPhone.value = GetStorage().read('phone') ?? '';
-    UserProfile.value = GetStorage().read('profile_pic_url') ?? '';
-    selectedCategoryName.value = storage.read('job_category') ?? '';
-    selectedCategorySlug.value = storage.read('job_category_slug') ?? '';
-    selectedRole.value = storage.read('job_role') ?? '';
-    selectedCity.value = storage.read('job_city') ?? '';
-    selectedLocality.value = storage.read('job_locality') ?? '';
+      // Basic profile
+      UserName.value    = storage.read('profile_name')    ?? '';
+      UserPhone.value   = storage.read('phone')           ?? '';
+      UserProfile.value = storage.read('profile_pic_url') ?? '';
+
+      // Dropdowns
+      selectedCategoryName.value = storage.read('job_category')      ?? '';
+      selectedCategorySlug.value = storage.read('job_category_slug') ?? '';
+      selectedRole.value         = storage.read('job_role')          ?? '';
+      selectedCity.value         = storage.read('job_city')          ?? '';
+      selectedLocality.value     = storage.read('job_locality')      ?? '';
+
+      // FIX: populate reactive display vars for home screen top-bar
+      displayDesiredCategory.value   = storage.read('desired_category')     ?? '';
+      displayPreferredLocality.value = storage.read('preferred_locality')   ?? '';
+
     } catch (e) {
       debugPrint('⚠️ Error loading local data: $e');
     }
   }
+
+
   void _checkSubscriptionValidity() {
     if (subscriptionEndDate.value == null) {
       isSubscriptionValid.value = false; // Active with no expiry = lifetime?
@@ -670,112 +741,101 @@ class JobHomeController extends GetxController {
     if (source.isEmpty || target.isEmpty) return false;
     return source.contains(target) || target.contains(source);
   }
+
   // Future<void> loadInitialMatchedJobs() async {
-  //   // 🔹 Candidate data from local storage
-  //   var desiredCategory = (storage.read("desired_category") ?? "").toString().trim().toLowerCase();
-  //   if (desiredCategory.isEmpty) {
-  //     desiredCategory = (storage.read("desired_category") ?? "")
-  //         .toString().trim()
-  //         .toLowerCase();
-  //   }
-  //   final preferredCity = (storage.read("preferred_city") ?? "").toString().trim().toLowerCase();
-  //   final preferredLocality = (storage.read("preferred_locality") ?? "").toString().trim().toLowerCase();
-  //   final candidateGender = (storage.read("gender") ?? "").toString().trim();
-  //   //final candidateYears = _parseYears(storage.read("selectedExperienceYears"));
+  //
+  //   var desiredCategory =
+  //   (storage.read("desired_category") ?? "").toString().trim().toLowerCase();
+  //
+  //   final preferredCity =
+  //   (storage.read("preferred_city") ?? "").toString().trim().toLowerCase();
+  //
+  //   final preferredLocality =
+  //   (storage.read("preferred_locality") ?? "").toString().trim().toLowerCase();
+  //
+  //   final candidateGender = (storage.read("gender") ?? "").toString().trim().toLowerCase();
   //
   //   if (desiredCategory.isEmpty || preferredCity.isEmpty) {
-  //     print('Candidate category or city not set in storage');
   //     matchedJobs.value = [];
   //     lastMatchedJobKey = null;
   //     return;
   //   }
   //
+  //   final indexKey = "${desiredCategory}_${preferredCity}";
+  //
   //   final snapshot = await database
-  //       .child("jobs")
-  //       .orderByKey()
-  //       .limitToLast(limit)
+  //       .child("job_index")
+  //       .child(indexKey)
   //       .get();
   //
   //   if (!snapshot.exists || snapshot.value == null) {
-  //     print('No jobs found');
   //     matchedJobs.value = [];
   //     lastMatchedJobKey = null;
   //     return;
   //   }
   //
-  //   final data = snapshot.value as Map<dynamic, dynamic>;
+  //   final ids = Map<String, dynamic>.from(snapshot.value as Map);
   //
-  //   List<Map<String, dynamic>> allJobs = data.entries.map((e) {
-  //     return {
-  //       "key": e.key,
-  //       ...Map<String, dynamic>.from(e.value as Map),
-  //     };
-  //   }).toList();
+  //   print(ids);
+  //   List<Map<String, dynamic>> jobs = [];
   //
-  //   // sort newest first
-  //   allJobs.sort((a, b) => (b["key"] as String)
-  //       .compareTo(a["key"] as String));
+  //   for (var jobId in ids.keys) {
   //
-  //   var filtered = allJobs
-  //       .where((job) => job["isapproved"] == true)
-  //   // Flexible Category
-  //       .where((job) {
-  //     final jobCategory =
-  //     (job["category"] ?? "").toString();
-  //     return containsFlexible(jobCategory, desiredCategory);
-  //   })
+  //     final jobSnap = await database.child("jobs/$jobId").get();
+  //     //print(jobSnap);
+  //     if (!jobSnap.exists) continue;
   //
-  //   // Flexible City
-  //       .where((job) {
-  //     final jobCity =
-  //     (job["city"] ?? "").toString();
-  //     return containsFlexible(jobCity, preferredCity);
-  //   })
+  //     final job = Map<String, dynamic>.from(jobSnap.value as Map);
   //
-  //   // Gender Flexible
-  //       .where((job) {
-  //     final jobGender =
-  //     (job["gender"] ?? "").toString().toLowerCase();
-  //     final candGender = candidateGender.toLowerCase();
+  //     if (job["isapproved"] != true) continue;
   //
-  //     if (jobGender.isEmpty ||
-  //         jobGender == "any" ||
-  //         jobGender == "both") return true;
+  //     final jobGender = (job["gender"] ?? "").toString().toLowerCase();
   //
-  //     if (candGender.isEmpty) return true;
+  //     if (jobGender.isNotEmpty &&
+  //         jobGender != "any" &&
+  //         jobGender != "both" &&
+  //         candidateGender.isNotEmpty &&
+  //         jobGender != candidateGender) {
+  //       continue;
+  //     }
   //
-  //     return jobGender == candGender;
-  //   })
+  //     jobs.add({
+  //       "key": jobId,
+  //       ...job,
+  //     });
+  //   }
   //
-  //   // Experience Range
-  //   //     .where((job) {
-  //   //   final minExp = _parseYears(job["min_experience"]);
-  //   //   final maxExp = _parseYears(job["max_experience"]);
-  //   //
-  //   //   if (candidateYears == null) return true;
-  //   //
-  //   //   if (minExp != null && candidateYears < minExp) return false;
-  //   //   if (maxExp != null && candidateYears > maxExp) return false;
-  //   //
-  //   //   return true;
-  //   // })
+  //   matchedJobs.value = jobs;
   //
-  //       .toList();
-  //   // 🔹 Keep only limit
-  //   filtered = filtered.take(limit).toList();
-  //
-  //   matchedJobs.value = filtered;
-  //
-  //   if (filtered.isNotEmpty) {
-  //     lastMatchedJobKey = filtered.last["key"] as String;
+  //   if (jobs.isNotEmpty) {
+  //     lastMatchedJobKey = jobs.last["key"];
   //   } else {
   //     lastMatchedJobKey = null;
   //   }
   // }
-  Future<void> loadInitialMatchedJobs() async {
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CHANGE 5 — Replace loadInitialMatchedJobs()
+//            FIX: also writes 'desired_category' back to storage if it came
+//                 from an older sync that wrote 'selectedDesiredCategory'
+//                 (backward compat — safe to remove after one release)
+// ══════════════════════════════════════════════════════════════════════════════
+
+  Future<void> loadInitialMatchedJobs() async {
+    // Read from storage — 'desired_category' is now the canonical key
     var desiredCategory =
     (storage.read("desired_category") ?? "").toString().trim().toLowerCase();
+
+    // Backward-compat: older syncs wrote 'selectedDesiredCategory'
+    if (desiredCategory.isEmpty) {
+      desiredCategory =
+          (storage.read("selectedDesiredCategory") ?? "").toString().trim().toLowerCase();
+      // Migrate to canonical key
+      if (desiredCategory.isNotEmpty) {
+        storage.write("desired_category", storage.read("selectedDesiredCategory"));
+      }
+    }
 
     final preferredCity =
     (storage.read("preferred_city") ?? "").toString().trim().toLowerCase();
@@ -786,19 +846,19 @@ class JobHomeController extends GetxController {
     final candidateGender =
     (storage.read("gender") ?? "").toString().trim().toLowerCase();
 
+    // Update reactive display vars in case they weren't set yet
+    displayDesiredCategory.value   = storage.read("desired_category")     ?? '';
+    displayPreferredLocality.value = storage.read("preferred_locality")   ?? '';
+
     if (desiredCategory.isEmpty || preferredCity.isEmpty) {
-      matchedJobs.value = [];
-      lastMatchedJobKey = null;
+      matchedJobs.value   = [];
+      lastMatchedJobKey   = null;
       return;
     }
 
     final indexKey = "${desiredCategory}_${preferredCity}";
 
-    final snapshot = await database
-        .child("job_index")
-        .child(indexKey)
-        .limitToFirst(limit)
-        .get();
+    final snapshot = await database.child("job_index").child(indexKey).get();
 
     if (!snapshot.exists || snapshot.value == null) {
       matchedJobs.value = [];
@@ -811,17 +871,13 @@ class JobHomeController extends GetxController {
     List<Map<String, dynamic>> jobs = [];
 
     for (var jobId in ids.keys) {
-
       final jobSnap = await database.child("jobs/$jobId").get();
-
       if (!jobSnap.exists) continue;
 
       final job = Map<String, dynamic>.from(jobSnap.value as Map);
-
       if (job["isapproved"] != true) continue;
 
       final jobGender = (job["gender"] ?? "").toString().toLowerCase();
-
       if (jobGender.isNotEmpty &&
           jobGender != "any" &&
           jobGender != "both" &&
@@ -830,90 +886,13 @@ class JobHomeController extends GetxController {
         continue;
       }
 
-      jobs.add({
-        "key": jobId,
-        ...job,
-      });
+      jobs.add({"key": jobId, ...job});
     }
 
     matchedJobs.value = jobs;
-
-    if (jobs.isNotEmpty) {
-      lastMatchedJobKey = jobs.last["key"];
-    } else {
-      lastMatchedJobKey = null;
-    }
+    lastMatchedJobKey = jobs.isNotEmpty ? jobs.last["key"] : null;
   }
-  // Future<void> loadMoreMatchedJobs() async {
-  //   if (isLoadingMore.value || lastMatchedJobKey == null) return;
-  //   isLoadingMore.value = true;
-  //
-  //   // 🔹 Candidate data again
-  //   final desiredCategory =
-  //   (storage.read("selectedCategory") ?? "").toString().trim().toLowerCase();
-  //   final preferredCity =
-  //   (storage.read("preferred_city") ?? "").toString().trim().toLowerCase();
-  //   final candidateGender =
-  //   (storage.read("gender") ?? "").toString().trim();
-  //   final candidateYears =
-  //   _parseYears(storage.read("selectedExperienceYears"));
-  //
-  //   final snapshot = await database
-  //       .child("jobs")
-  //       .orderByKey()
-  //       .endBefore(lastMatchedJobKey)
-  //       .limitToLast(limit * 5) // buffer for filtering
-  //       .get();
-  //
-  //   if (snapshot.exists && snapshot.value != null) {
-  //     final data = snapshot.value as Map<dynamic, dynamic>;
-  //
-  //     List<Map<String, dynamic>> allJobs = data.entries.map((e) {
-  //       return {
-  //         "key": e.key,
-  //         ...Map<String, dynamic>.from(e.value as Map),
-  //       };
-  //     }).toList();
-  //
-  //     var filtered = allJobs
-  //         .where((job) => job["isapproved"] == true)
-  //         .where((job) =>
-  //     (job["category"] ?? "").toString().trim().toLowerCase() ==
-  //         desiredCategory)
-  //         .where((job) =>
-  //     (job["city"] ?? "").toString().trim().toLowerCase() ==
-  //         preferredCity)
-  //         .where((job) {
-  //       final jobGender = (job["gender"] ?? "").toString().trim();
-  //       if (jobGender.isEmpty || jobGender == "Any") return true;
-  //       if (candidateGender.isEmpty) return true;
-  //       return jobGender == candidateGender;
-  //     })
-  //         .where((job) {
-  //       final minExp = _parseYears(job["min_experience"]);
-  //       if (candidateYears == null || minExp == null) return true;
-  //       return candidateYears >= minExp;
-  //     })
-  //         .toList();
-  //
-  //     // sort by posted_on
-  //     filtered.sort((a, b) {
-  //       final pa = (a["posted_on"] ?? "") as String;
-  //       final pb = (b["posted_on"] ?? "") as String;
-  //       return pb.compareTo(pa);
-  //     });
-  //
-  //     filtered = filtered.take(limit).toList();
-  //
-  //     if (filtered.isNotEmpty) {
-  //       lastMatchedJobKey = filtered.last["key"] as String;
-  //       matchedJobs.addAll(filtered);
-  //     } else {
-  //       lastMatchedJobKey = null;
-  //     }
-  //   }
-  //   isLoadingMore.value = false;
-  // }
+
   Future<void> loadMoreMatchedJobs() async {
 
     if (isLoadingMore.value || lastMatchedJobKey == null) return;
@@ -1137,17 +1116,17 @@ class JobHomeController extends GetxController {
     }
   }
 
-  Future<void> updateBasicProfile() async {
+  Future<bool> updateBasicProfile() async {
     final name = fullNameController.text.trim();
 
     if (name.isEmpty) {
       Get.snackbar('Validation', 'Please enter your full name');
-      return;
+      return false;
     }
 
     if (selectedGender.value.isEmpty) {
       genderError.value = 'Please select gender';
-      return;
+      return false;
     } else {
       genderError.value = '';
     }
@@ -1166,7 +1145,7 @@ class JobHomeController extends GetxController {
       final String? candidateId = storage.read('candidate_id');
       if (candidateId == null) {
         Get.snackbar('Error', 'User not logged in');
-        return;
+        return false;
       }
 
       final updateMap = {
@@ -1177,77 +1156,73 @@ class JobHomeController extends GetxController {
         'preferred_locality': prefloc,
       };
 
-      await database
-          .child('candidate')
-          .child(candidateId)
-          .update(updateMap);
+      await database.child('candidate').child(candidateId).update(updateMap);
 
-      // ✅ Update local storage
       storage.write('profile_name', name);
       storage.write('gender', selectedGender.value);
       storage.write('profile_pic_url', profilePicUrl.value);
       storage.write('preferred_city', prefcity);
       storage.write('preferred_locality', prefloc);
 
+      // 🔥 keep home screen's reactive display vars in sync
+      displayPreferredLocality.value = prefloc ?? '';
+
       Get.snackbar('Success', 'Profile updated successfully');
+      return true;
     } catch (e) {
       debugPrint('❌ Error updating profile: $e');
       Get.snackbar('Error', 'Failed to update profile');
+      return false;
     } finally {
       isProfileUpdating.value = false;
     }
   }
-  Future<void> updateJobCategory() async {
+
+  Future<bool> updateJobCategory() async {
     try {
       isProfileUpdating.value = true;
 
       final String? candidateId = storage.read('candidate_id');
       if (candidateId == null) {
         Get.snackbar('Error', 'User not logged in');
-        return;
+        return false;
       }
 
-      // 🔹 Final Category (name)
-      final String finalCategory =
-      selectedCategoryName.value.isNotEmpty
+      final String finalCategory = selectedCategoryName.value.isNotEmpty
           ? selectedCategoryName.value
           : (storage.read("desired_category") ?? "");
 
-      // 🔹 Final Role (name)
-      final String finalRole =
-      selectedRole.value.isNotEmpty
+      final String finalRole = selectedRole.value.isNotEmpty
           ? selectedRole.value
           : (storage.read("desired_role") ?? "");
 
       if (finalCategory.isEmpty) {
-        Get.snackbar('Validation', 'Please select category');
-        return;
+        Get.snackbar('Validation', 'Please select a category');
+        return false;
       }
-
       if (finalRole.isEmpty) {
-        Get.snackbar('Validation', 'Please select role');
-        return;
+        Get.snackbar('Validation', 'Please select a role');
+        return false;
       }
 
-      final Map<String, dynamic> updateMap = {
+      await database.child('candidate').child(candidateId).update({
         'desired_category': finalCategory,
         'desired_role': finalRole,
-      };
+      });
 
-      // 🔹 Update in Realtime Database
-      await database
-          .child('candidate')
-          .child(candidateId)
-          .update(updateMap);
-
-      // 🔹 Update local storage
       storage.write('desired_category', finalCategory);
       storage.write('desired_role', finalRole);
 
-      Get.snackbar('Success', 'Category & Role updated successfully');
+      displayDesiredCategory.value = finalCategory;
+
+      await loadInitialMatchedJobs();
+
+      Get.snackbar('Success', 'Category & Role updated');
+      return true;
     } catch (e) {
       debugPrint('❌ Error updating category & role: $e');
       Get.snackbar('Error', 'Failed to update');
+      return false;
     } finally {
       isProfileUpdating.value = false;
     }
@@ -1601,63 +1576,136 @@ class JobHomeController extends GetxController {
   }
 
   // ==================== SAVE DATA LOCALLY ====================
+  // Future<void> _saveCandidateDataToLocal(Map<String, dynamic> data) async {
+  //   try {
+  //     // Basic Info
+  //     storage.write("profile_name", data['profile_name'] ?? '');
+  //     storage.write("age", data['age'] ?? '');
+  //     storage.write("gender", data['gender'] ?? '');
+  //     storage.write("email", data['email'] ?? '');
+  //     storage.write("summery", data['summery'] ?? '');
+  //     storage.write("profile_pic_url", data['profile_pic_url'] ?? '');
+  //
+  //     // Education
+  //     storage.write("highestEducation", data['highest_education'] ?? '');
+  //     storage.write("selectedCourse", data['course'] ?? '');
+  //     storage.write("selectedSpecialization", data['specialization'] ?? '');
+  //     storage.write("selectedDegree", data['degree'] ?? '');
+  //     storage.write("selectedDegreeSpecialization", data['degree_specialization'] ?? '');
+  //     storage.write("CollageName", data['college_name'] ?? '');
+  //     storage.write("Passingyear", data['passing_year'] ?? '');
+  //
+  //     // Experience
+  //     storage.write("selectedexperience", data['experience_type'] ?? '');
+  //     storage.write("selectedExperienceYears", data['experience_years'] ?? '');
+  //     storage.write("selectedCategory", data['current_category'] ?? '');
+  //     storage.write("selectedRole", data['current_role'] ?? '');
+  //     storage.write("CompanyName", data['company_name'] ?? '');
+  //     storage.write("selectedWorkingStatus", data['working_status'] ?? '');
+  //     storage.write("CurrentSalary", data['current_salary'] ?? '');
+  //
+  //     // Job Preferences (note: desired_role not desired_category in second occurrence)
+  //     storage.write("selectedDesiredCategory", data['desired_category'] ?? '');
+  //     storage.write("selectedDesiredRole", data['desired_role'] ?? '');
+  //     storage.write("skills", data['skills'] ?? []);
+  //
+  //     // Additional Info
+  //     storage.write("preferred_city", data['preferred_city'] ?? '');
+  //     storage.write("preferred_locality", data['preferred_locality'] ?? '');
+  //     storage.write("assets", data['assets'] ?? []);
+  //     storage.write("languages", data['languages'] ?? []);
+  //     storage.write("resume_path", data['resume_path'] ?? '');
+  //     storage.write("resume_url", data['resume_url'] ?? '');
+  //     storage.write("address", data['address'] ?? '');
+  //     storage.write("summery", data['summery'] ?? '');
+  //
+  //     // Subscription (nested object)
+  //     final subscription = data['subscription'];
+  //     if (subscription != null && subscription is Map) {
+  //       final subMap = Map<String, dynamic>.from(subscription);
+  //       storage.write("subscription_plan_id", subMap['plan_id'] ?? '');
+  //       storage.write("subscription_start_date", subMap['start_date'] ?? '');
+  //       storage.write("subscription_end_date", subMap['end_date'] ?? '');
+  //     }
+  //
+  //     // Applied Jobs
+  //     storage.write("applied_jobs", data['applied_jobs'] ?? []);
+  //
+  //     // Profile completion flag
+  //     storage.write("profile_completed", data['profile_completed'] ?? true);
+  //
+  //     debugPrint('✅ All data saved locally');
+  //   } catch (e) {
+  //     debugPrint('❌ Error saving data locally: $e');
+  //   }
+  // }
+
+ // ══════════════════════════════════════════════════════════════════════════════
+// CHANGE 2 — Replace _saveCandidateDataToLocal entirely
+//            BUG: was writing 'selectedDesiredCategory' but
+//                 loadInitialMatchedJobs reads 'desired_category'
+// ══════════════════════════════════════════════════════════════════════════════
+
   Future<void> _saveCandidateDataToLocal(Map<String, dynamic> data) async {
     try {
       // Basic Info
-      storage.write("profile_name", data['profile_name'] ?? '');
-      storage.write("age", data['age'] ?? '');
-      storage.write("gender", data['gender'] ?? '');
-      storage.write("email", data['email'] ?? '');
-      storage.write("summery", data['summery'] ?? '');
+      storage.write("profile_name",    data['profile_name']    ?? '');
+      storage.write("age",             data['age']             ?? '');
+      storage.write("gender",          data['gender']          ?? '');
+      storage.write("email",           data['email']           ?? '');
+      storage.write("summery",         data['summery']         ?? '');
       storage.write("profile_pic_url", data['profile_pic_url'] ?? '');
 
       // Education
-      storage.write("highestEducation", data['highest_education'] ?? '');
-      storage.write("selectedCourse", data['course'] ?? '');
-      storage.write("selectedSpecialization", data['specialization'] ?? '');
-      storage.write("selectedDegree", data['degree'] ?? '');
+      storage.write("highestEducation",           data['highest_education']     ?? '');
+      storage.write("selectedCourse",             data['course']                ?? '');
+      storage.write("selectedSpecialization",     data['specialization']        ?? '');
+      storage.write("selectedDegree",             data['degree']                ?? '');
       storage.write("selectedDegreeSpecialization", data['degree_specialization'] ?? '');
-      storage.write("CollageName", data['college_name'] ?? '');
-      storage.write("Passingyear", data['passing_year'] ?? '');
+      storage.write("CollageName",                data['college_name']          ?? '');
+      storage.write("Passingyear",                data['passing_year']          ?? '');
 
-      // Experience
-      storage.write("selectedexperience", data['experience_type'] ?? '');
+      // Work Experience
+      storage.write("selectedexperience",      data['experience_type']  ?? '');
       storage.write("selectedExperienceYears", data['experience_years'] ?? '');
-      storage.write("selectedCategory", data['current_category'] ?? '');
-      storage.write("selectedRole", data['current_role'] ?? '');
-      storage.write("CompanyName", data['company_name'] ?? '');
-      storage.write("selectedWorkingStatus", data['working_status'] ?? '');
-      storage.write("CurrentSalary", data['current_salary'] ?? '');
+      storage.write("selectedCategory",        data['current_category'] ?? '');
+      storage.write("selectedRole",            data['current_role']     ?? '');
+      storage.write("CompanyName",             data['company_name']     ?? '');
+      storage.write("selectedWorkingStatus",   data['working_status']   ?? '');
+      storage.write("CurrentSalary",           data['current_salary']   ?? '');
 
-      // Job Preferences (note: desired_role not desired_category in second occurrence)
-      storage.write("selectedDesiredCategory", data['desired_category'] ?? '');
-      storage.write("selectedDesiredRole", data['desired_role'] ?? '');
-      storage.write("skills", data['skills'] ?? []);
+      // Job Preferences
+      // FIX: was 'selectedDesiredCategory' — changed to 'desired_category'
+      //      so loadInitialMatchedJobs() and the home top-bar read the same key
+      storage.write("desired_category", data['desired_category'] ?? '');
+      storage.write("desired_role",     data['desired_role']     ?? '');
+      storage.write("skills",           data['skills']           ?? []);
 
-      // Additional Info
-      storage.write("preferred_city", data['preferred_city'] ?? '');
+      // Location
+      storage.write("preferred_city",     data['preferred_city']     ?? '');
       storage.write("preferred_locality", data['preferred_locality'] ?? '');
-      storage.write("assets", data['assets'] ?? []);
-      storage.write("languages", data['languages'] ?? []);
-      storage.write("resume_path", data['resume_path'] ?? '');
-      storage.write("resume_url", data['resume_url'] ?? '');
-      storage.write("address", data['address'] ?? '');
-      storage.write("summery", data['summery'] ?? '');
+      storage.write("assets",             data['assets']             ?? []);
+      storage.write("languages",          data['languages']          ?? []);
+      storage.write("resume_path",        data['resume_path']        ?? '');
+      storage.write("resume_url",         data['resume_url']         ?? '');
+      storage.write("address",            data['address']            ?? '');
 
       // Subscription (nested object)
       final subscription = data['subscription'];
       if (subscription != null && subscription is Map) {
         final subMap = Map<String, dynamic>.from(subscription);
-        storage.write("subscription_plan_id", subMap['plan_id'] ?? '');
+        storage.write("subscription_plan_id",    subMap['plan_id']    ?? '');
         storage.write("subscription_start_date", subMap['start_date'] ?? '');
-        storage.write("subscription_end_date", subMap['end_date'] ?? '');
+        storage.write("subscription_end_date",   subMap['end_date']   ?? '');
       }
 
-      // Applied Jobs
-      storage.write("applied_jobs", data['applied_jobs'] ?? []);
-
-      // Profile completion flag
+      // Applied Jobs + Profile flag
+      storage.write("applied_jobs",      data['applied_jobs']      ?? []);
       storage.write("profile_completed", data['profile_completed'] ?? true);
+
+      // FIX: also update reactive display vars so home screen refreshes immediately
+      displayDesiredCategory.value  = data['desired_category']     ?? '';
+      displayPreferredLocality.value = data['preferred_locality']   ?? '';
 
       debugPrint('✅ All data saved locally');
     } catch (e) {

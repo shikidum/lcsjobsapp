@@ -116,64 +116,81 @@ class JobPostController extends GetxController {
   final RxString verificationId = ''.obs;
   final RxString enteredOtp = ''.obs;
 
+  // Future<void> sendOtpToPhone(String phoneNumber) async {
+  //   final trimmed = phoneNumber.trim();
+  //
+  //   if (trimmed.length != 10) {
+  //     Get.snackbar("Invalid Number", "Please enter a valid 10-digit phone number.");
+  //     isSubmitting.value = false; // important if you set it before
+  //     return;
+  //   }
+  //
+  //   await _auth.verifyPhoneNumber(
+  //     phoneNumber: '+91$trimmed',
+  //     timeout: const Duration(seconds: 60),
+  //
+  //     verificationCompleted: (PhoneAuthCredential credential) async {
+  //       // For this flow, we don't want auto-complete login.
+  //       // You can either ignore this OR treat it as "verified" silently.
+  //       try {
+  //         await _auth.signInWithCredential(credential);
+  //         // Optional: immediately sign out so it doesn’t affect your main login state
+  //         await _auth.signOut();
+  //         // You could set a flag like isOtpVerified.value = true if needed.
+  //       } catch (_) {}
+  //     },
+  //
+  //     verificationFailed: (FirebaseAuthException e) {
+  //       Get.snackbar("Error", e.message ?? "OTP sending failed");
+  //       isSubmitting.value = false;
+  //     },
+  //
+  //     codeSent: (String verId, int? resendToken) {
+  //       verificationId.value = verId;
+  //       // We don’t change isSubmitting here – we handle it in the UI after verify/cancel.
+  //     },
+  //
+  //     codeAutoRetrievalTimeout: (String verId) {
+  //       verificationId.value = verId;
+  //     },
+  //   );
+  // }
   Future<void> sendOtpToPhone(String phoneNumber) async {
     final trimmed = phoneNumber.trim();
 
     if (trimmed.length != 10) {
       Get.snackbar("Invalid Number", "Please enter a valid 10-digit phone number.");
-      isSubmitting.value = false; // important if you set it before
+      isSubmitting.value = false;
       return;
     }
-
-    await _auth.verifyPhoneNumber(
-      phoneNumber: '+91$trimmed',
-      timeout: const Duration(seconds: 60),
-
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // For this flow, we don't want auto-complete login.
-        // You can either ignore this OR treat it as "verified" silently.
-        try {
-          await _auth.signInWithCredential(credential);
-          // Optional: immediately sign out so it doesn’t affect your main login state
-          await _auth.signOut();
-          // You could set a flag like isOtpVerified.value = true if needed.
-        } catch (_) {}
-      },
-
-      verificationFailed: (FirebaseAuthException e) {
-        Get.snackbar("Error", e.message ?? "OTP sending failed");
-        isSubmitting.value = false;
-      },
-
-      codeSent: (String verId, int? resendToken) {
-        verificationId.value = verId;
-        // We don’t change isSubmitting here – we handle it in the UI after verify/cancel.
-      },
-
-      codeAutoRetrievalTimeout: (String verId) {
-        verificationId.value = verId;
-      },
-    );
+    // No real OTP sent — last 6 digits of phone number act as the OTP
+    // isSubmitting stays true so the dialog shows
   }
-
   /// Returns true if OTP is correct, false otherwise
+  // Future<bool> verifyOtp(String enteredOtp) async {
+  //   try {
+  //     final credential = PhoneAuthProvider.credential(
+  //       verificationId: verificationId.value,
+  //       smsCode: enteredOtp,
+  //     );
+  //
+  //     await _auth.signInWithCredential(credential);
+  //     // Immediately sign out so this doesn't act as an app login
+  //     await _auth.signOut();
+  //
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
   Future<bool> verifyOtp(String enteredOtp) async {
-    try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId.value,
-        smsCode: enteredOtp,
-      );
-
-      await _auth.signInWithCredential(credential);
-      // Immediately sign out so this doesn't act as an app login
-      await _auth.signOut();
-
-      return true;
-    } catch (e) {
-      return false;
+    final last6 = PhoneNoController.text.trim();
+    if (last6.length >= 6) {
+      return enteredOtp == last6.substring(last6.length - 6);
     }
+    return false;
   }
-
 
   void fetchCategories() async {
     final snapshot = await database.child('job_categories').get();
