@@ -41,6 +41,11 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
 
+      # Fix for BoringSSL-GRPC / gRPC unsupported '-G' flag on Xcode 16+
+        if target.name == 'BoringSSL-GRPC'
+          config.build_settings['OTHER_CFLAGS'] = config.build_settings['OTHER_CFLAGS']&.reject { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' } || []
+        end
+
       # Strip -G from ALL flag keys including Razorpay's injected flags
       %w[
         OTHER_CFLAGS
